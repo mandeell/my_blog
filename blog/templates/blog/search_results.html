@@ -1,0 +1,77 @@
+{% extends 'blog/base.html' %}
+{% block title %}Search Results{% endblock %}
+
+{% block hero_title %}Search Results{% endblock %}
+{% block hero_subtitle %}Showing results for "{{ query }}"{% endblock %}
+
+{% block content %}
+<div class="glass-card p-6 rounded-xl shadow-sm mb-8">
+    <h1 class="text-2xl font-bold mb-6">Search Results for "{{ query }}"</h1>
+
+    {% for post in posts %}
+    <div class="glass-card p-6 rounded-xl shadow-sm mb-6 transition-all duration-300 hover:translate-y-1">
+        {% if post.featured_image %}
+        <img src="{{ post.featured_image.url }}" class="w-full h-64 object-cover rounded-lg mb-4" alt="{{ post.title }}" loading="lazy">
+        {% endif %}
+  <div class="glass-card p-6 rounded-2xl shadow-sm mb-6">
+    <h2 class="text-xl font-bold mb-3">
+      <a href="{% url 'blog_detail' post.slug %}" class="text-blue-700 hover:text-blue-800">
+                    {{ post.title }}
+                </a>
+            </h2>
+            <p class="text-slate-600 mb-3">{{ post.excerpt|truncatewords:30 }}</p>
+            <p class="text-sm text-slate-500 flex items-center">
+                <i class="fas fa-user mr-2"></i>{{ post.author }} •
+                <i class="fas fa-calendar-alt ml-3 mr-2"></i>{{ post.created_at|date:"F d, Y" }}
+            </p>
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-12">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-indigo-100 rounded-full mb-4">
+            <i class="fas fa-search text-indigo-600 text-xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 mb-2">No Results Found</h3>
+        <p class="text-slate-600">Try different search terms or browse our categories</p>
+    </div>
+    {% endfor %}
+
+    {% if is_paginated %}
+    <nav class="flex justify-center mt-8" aria-label="Pagination Navigation">
+        <div class="flex items-center space-x-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}"
+               class="flex items-center px-4 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-300"
+               aria-label="Go to previous page">
+                <i class="fas fa-chevron-left mr-2"></i>
+                <span>Previous</span>
+            </a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-lg font-semibold" aria-current="page">
+                    {{ num }}
+                </span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}&q={{ query }}"
+                   class="px-4 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-300"
+                   aria-label="Go to page {{ num }}">
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&q={{ query }}"
+               class="flex items-center px-4 py-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-300"
+               aria-label="Go to next page">
+                <span>Next</span>
+                <i class="fas fa-chevron-right ml-2"></i>
+            </a>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
